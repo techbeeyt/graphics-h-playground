@@ -1,0 +1,17 @@
+.file {
+    padding: 8px 0px;
+    cursor: pointer;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.file:last-child {
+    border-bottom: none;
+}
+
+.file:first-child {
+    border-top: 1px solid #e7e7e7;
+}
+
+.file:hover {
+    background: #e7e7e7;
+}

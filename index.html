@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graphics.h Simulator in JavaScript</title>
+    <style>
+      body {
+        text-align: center;
+        font-family: Arial, sans-serif;
+        margin: 0;
+      }
+      canvas {
+        border: 1px solid black;
+        display: block;
+        margin: 20px auto;
+      }
+      h1 {
+        margin-top: 20px;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./src/graphics.js"></script>
+    <script src="./src/file-manager.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+    <style>
+      .editor-wrapper {
+        width: 600px;
+        height: 300px;
+        margin: 20px auto;
+        border: 1px solid #ccc;
+        background: #2d2d2d;
+        font-family: monospace;
+        font-size: 14px;
+        color: #f8f8f2;
+        overflow: auto;
+        border-radius: 5px;
+      }
+
+      #editor {
+        outline: none;
+        padding: 10px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        caret-color: white;
+        min-height: 100%;
+      }
+    </style>
+
+    <link rel="stylesheet" href="./styles/styles.css">
+  </head>
+  <body class="bg-gray-50">
+    <div class="bg-gray-100 px-3 py-2 flex justify-start items-center gap-6">
+        <!-- <button class="relative">
+            <span>File</span>
+        </button>
+        <button>Edit</button> -->
+        <button class="relative group">
+            <span>Help</span>
+
+            <div class="absolute w-[60vw] h-[60vh] shadow-md bg-white opacity-0 group-hover:opacity-100 p-4 border border-gray-200 rounded-md pointer-events-none group-hover:pointer-events-auto">
+                
+            </div>
+        </button>
+    </div> 
+    </div>
+    <div class="grid grid-cols-12">
+      <div class="col-span-7">
+        <canvas id="graphicsCanvas" height="500" width="700"></canvas>
+      </div>
+
+      <div class="col-span-5">
+        <div class="editor-wrapper">
+          <div
+            id="editor"
+            class="text-left"
+            contenteditable="true"
+            spellcheck="false"
+          ></div>
+        </div>
+
+        <script src="./src/editor.js"></script>
+
+        <div class="flex justify-center items-center gap-4">
+            <button id="run" class="bg-blue-600 text-white p-3 rounded-md mt-2">
+                RUN!
+              </button>
+
+              <button id="save-file" class="bg-gray-200 text-gray-600 p-3 rounded-md mt-2">
+                Save File
+              </button>
+        </div>
+
+        <div class="mt-4 bg-gray-100 border border-gray-200 rounded">
+            <h1 class="text-lg font-semibold py-2">Saved Files</h1>
+
+            <div id="file-container" class="h-[200px] overflow-y-auto">
+
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <script id="user-input"></script>
+    <script>
+      const canvas = document.getElementById("graphicsCanvas");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true});
+
+      const text_content = document.getElementById("editor");
+
+      document.getElementById("run").addEventListener("click", () => {
+        cleardevice();
+        eval(text_content.textContent);
+      })
+    </script>
+
+    <script>
+        const renderFiles = () => {
+            const files = getAllFiles();
+            console.log(files);
+
+            // FILE CONTAINER
+            const fileContainer = document.getElementById("file-container");
+            fileContainer.innerHTML = "";
+
+            for(let filename in files){
+                const div = document.createElement("div");
+
+                div.classList.add("file");
+
+                div.addEventListener("click", () => {
+                    const file = files[filename];
+                    text_content.textContent = file;
+
+                    if(window.highlightEditorContent) {
+                        window.highlightEditorContent();
+                    }
+                })
+                div.innerHTML = filename;
+
+                fileContainer.appendChild(div);
+            }
+        }
+
+        window.renderFiles = renderFiles;
+        renderFiles();
+
+        const saveFileBtn = document.getElementById("save-file");
+        saveFileBtn.addEventListener("click", async () => {
+            const res = await prompt("Enter file name:");
+            if(!res) return;
+
+            saveFile(res, text_content.textContent);
+        })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C++ Code Editor</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/cpp.min.js"></script>
+    <style>
+      .editor-wrapper {
+        width: 80%;
+        height: 400px;
+        margin: 20px auto;
+        border: 1px solid #ccc;
+        background: #2d2d2d;
+        font-family: monospace;
+        font-size: 14px;
+        color: #f8f8f2;
+        overflow: auto;
+        border-radius: 5px;
+      }
+
+      #editor {
+        outline: none;
+        padding: 10px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        caret-color: white;
+        min-height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>C++ Code Editor</h1>
+    <div class="editor-wrapper">
+      <div id="editor" contenteditable="true" spellcheck="false"></div>
+    </div>
+
+    <script>
+      const editor = document.getElementById('editor');
+
+      // Insert text at the caret position
+      function insertTextAtCaret(text) {
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+
+        // Create a text node with the inserted text
+        const textNode = document.createTextNode(text);
+
+        // Delete the current selection if there is any
+        range.deleteContents();
+
+        // Insert the new text node at the caret position
+        range.insertNode(textNode);
+
+        // Move the caret to the end of the inserted text
+        range.setStart(textNode, text.length);
+        range.setEnd(textNode, text.length);
+
+        // Remove all ranges and set the new range (caret)
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+
+      // Get the indentation of the current line
+      function getCurrentLineIndentation() {
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        const preCaretRange = range.cloneRange();
+
+        // Move to the start of the content
+        preCaretRange.selectNodeContents(editor);
+        preCaretRange.setEnd(range.endContainer, range.endOffset);
+
+        // Get the text before the caret
+        const textBeforeCaret = preCaretRange.toString();
+        const lines = textBeforeCaret.split('\n');
+        const lastLine = lines[lines.length - 1];
+
+        // Match the spaces at the start of the last line
+        const match = lastLine.match(/^\s*/);
+        return match ? match[0] : '';
+      }
+
+      // Syntax highlighting for C++
+      function highlightEditorContent() {
+        const code = editor.innerText;
+        editor.innerHTML = hljs.highlight(code, { language: 'cpp' }).value;
+      }
+
+      // Handle keydown events for auto-completion, indentation, etc.
+      editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+
+          // Get the current line's indentation
+          const indentation = getCurrentLineIndentation();
+
+          // Insert a new line with the same indentation as the current line
+          insertTextAtCaret('\n' + indentation);
+
+          // Highlight syntax
+          highlightEditorContent();
+
+          // Move caret to the start of the inserted line
+          const selection = window.getSelection();
+          const range = selection.getRangeAt(0);
+          const node = range.startContainer;
+
+          // Move caret to the end of the inserted line
+          range.setStart(node, node.length);
+          range.setEnd(node, node.length);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        else if (e.key === 'Tab') {
+          e.preventDefault();
+          insertTextAtCaret('    '); // Insert 4 spaces for Tab key
+          highlightEditorContent();
+        }
+        else if (e.key === '{') {
+          e.preventDefault();
+          insertTextAtCaret('{}'); // Auto-complete {}
+          highlightEditorContent();
+        }
+        else if (e.key === '[') {
+          e.preventDefault();
+          insertTextAtCaret('[]'); // Auto-complete []
+          highlightEditorContent();
+        }
+        else if (e.key === '(') {
+          e.preventDefault();
+          insertTextAtCaret('()'); // Auto-complete ()
+          highlightEditorContent();
+        }
+      });
+
+      // Highlight code when the user types
+      editor.addEventListener('input', () => {
+        highlightEditorContent();
+      });
+
+      // Initialize with syntax highlighting
+      highlightEditorContent();
+    </script>
+  </body>
+</html>
